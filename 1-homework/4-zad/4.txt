@@ -1,0 +1,61 @@
+1. Pronađite dijelove assemblerskog kôda u kojima se odvija alociranje memorije za objekte poc i *pb.
+poc PlainOldClass poc;
+Memorija za objekt poc se alocira na stogu - navedeno nije zabiljezeno u strojnom kodu
+*pb Base* pb=new CoolClass;
+Memorija za objekt *pb alocira se na heapu
+mov	ecx, 16
+call	operator new(unsigned long long)
+mov	rbx, rax
+mov	rcx, rbx
+
+2. Objasnite razliku u načinu alociranja tih objekata.
+Za poc objekt je alocirana memorija na stogu, te za njega nije pozvan operator new (inicijalizacija).
+*pb je pokazivac na objekt koji je alociran na heapu pozivom: call	operator new(unsigned long long)
+
+3. Pronađite dio assemblerskog kôda koji je zadužen za poziv konstruktora objekta poc, ako takav poziv postoji.
+Takav poziv ne postoji, ne stvara se, jer se memorija za objekt alocira na stogu, a ne na heapu.
+
+4. Pronađite dio assemblerskog kôda koji je zadužen za poziv konstruktora objekta *pb. Razmotrite kako se točno izvršava taj kôd. Što se u njemu događa?
+mov	ecx, 16                                 //alocira se 16 bajtova memorije za objekt *pb
+call	operator new(unsigned long long)    //operator new - alokacija memorije na heapu
+mov	rbx, rax
+mov	rcx, rbx
+call	CoolClass::CoolClass() [linija 136] //poziv konstruktora
+
+5. Promotrite kako je prevoditelj izveo pozive pb->set i poc.set. Objasnite razliku između izvedbi tih dvaju poziva.
+Koji od ta dva poziva zahtijeva manje instrukcija? Za koju od te dvije izvedbe bi optimirajući prevoditelj mogao generirati kôd
+bez instrukcije CALL odnosno izravno umetnuti implementaciju funkcije (eng. inlining)?
+
+pb->set - instrukcije:
+mov	rax, QWORD PTR -8[rbp]
+mov	rax, QWORD PTR [rax]
+mov	r8, QWORD PTR [rax]
+mov	rax, QWORD PTR -8[rbp]
+mov	edx, 42
+mov	rcx, rax
+call	r8
+
+poc.set - instrukcije:
+mov	QWORD PTR -8[rbp], rbx
+lea	rax, -12[rbp]
+mov	edx, 42
+mov	rcx, rax
+call	PlainOldClass::set(int)
+
+Poziv poc.set zahtjeva manje instrukcija. poc.set radi direktni poziv na metodu objekta PlainOldClass (ne radi se o virtualnoj metodi),
+dok pb->set radi poziv na virtualnu metodu CoolClass::set, te je potrebno dohvatiti virtualnu tablicu i pozvati metodu iz nje.
+Za poc.set moguce je generirati kod bez instrukcije CALL, jer se radi o direktnom pozivu metode.
+
+6. Pronađite asemblerski kôd za definiciju i inicijalizaciju tablice virtualnih funkcija razreda CoolClass.
+
+lea	rdx, vtable for CoolClass[rip+16] [line 107]
+
+vtable for CoolClass:                 [line 159-167]
+	.quad	0
+	.quad	typeinfo for CoolClass
+	.quad	CoolClass::set(int)
+	.quad	CoolClass::get()
+	.globl	vtable for Base
+	.section	.rdata$_ZTV4Base,"dr"
+	.linkonce same_size
+	.align 8

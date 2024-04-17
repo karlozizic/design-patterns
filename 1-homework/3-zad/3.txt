@@ -1,0 +1,23 @@
+Size of CoolClass: 16 bytes
+CoolClass
+- privatna varijabla int x_ zauzima 4 bajtova
+- pokazivac na vtable zauzima 8 bajtova
+- padding: 4 bajta
+
+Size of PlainOldClass: 4 bytes
+PlainOldClass
+- privatna varijabla int x zauzima 4 bajta
+- metode set() get() ne zauzimaju dodatni prostor.
+
+Koncept "Padding"
+- Compiler dodaje padding (additional unnamed data members) kako bi objekti bili pravilno poravnati u memoriji
+(data structures often have members with different alignment requirements)
+- Procesori pristupaju memoriji efikasnije kada je podatci poravnati do odredene granice
+- Primjerice ako imamo strukturu s 1 integer = 4 bajta + 1 char = 1 bajt = 5 bajtova, compiler dodaje 3 bajta paddinga
+
+Napomena:
+32-bitna arhitektura: pokazivaci su velicine 4 bajta
+64-bitna arhitektura: pokazivaci su velicine 8 bajta
+Moje okruzenje je 64-bitno, pa je velicina pokazivaca 8 bajtova.
+
+Literatura: https://en.wikipedia.org/wiki/Data_structure_alignment#Data_structure_padding

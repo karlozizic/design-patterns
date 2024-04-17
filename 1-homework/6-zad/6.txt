@@ -1,0 +1,12 @@
+Ispis programa:
+Metoda kaze: ja sam bazna implementacija!
+Metoda kaze: ja sam izvedena implementacija!
+Metoda kaze: ja sam izvedena implementacija!
+
+Objasnjenje:
+Derived klasa nasljeduje Base klasu, te pozivom Derived konstruktora se automatski poziva Base konstruktor, koji poziva metodu metoda, koja poziva virtualnaMetoda (klase Base).
+U C++ konstruktori baznih klasa se izvode prije od konstruktora klasa koje nasljeduju. Zatim se u konstruktoru Dervived klase poziva virtualnaMetoda klase Derived.
+Na kraju se poziva metoda() nad objektom Derived klase.
+
+Objasnjenje koristeci strojni kod:
+- komentari u demangled_output.txt
